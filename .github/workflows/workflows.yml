@@ -1,0 +1,22 @@
+name: start test and deploy
+
+on:
+  push:
+    branches: [deploy]
+
+jobs:
+  deploy:
+    name: deploy to server
+    runs-on: self-hosted
+#    needs: test
+    steps:
+      - name: kill
+        run: sudo bash -c "pkill server-localhost-main -f"
+      - name: checkout branch
+        run: cd /home/habe/yggdrasil-api/ && git checkout deploy
+      - name: git pull
+        run: cd /home/habe/yggdrasil-api/ && git pull --allow-unrelated-histories -X theirs --no-edit
+      - name: build
+        run: cd /home/habe/yggdrasil-api/ && go build -o server-localhost-main ./src/main.go
+      - name: run
+        run: cd /home/habe/yggdrasil-api/ && sudo bash -c "./server-localhost-main &"
